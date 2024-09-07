@@ -105,7 +105,11 @@ pipeline {
         stage('Update Kubernetes deployment') {
             steps {
                 script {
-                    sh 'kubectl set image deployment backend-base-deployment backend-base=localhost:8082/backend-base:${env.BRANCH_NAME}-${env.BUILD_NUMBER}'
+                    sh '''
+                    # Ejecutar el comando kubectl con bash explícitamente
+                    # Usar /bin/bash para evitar el error de sustitución
+                    /bin/bash -c "kubectl set image deployment backend-base-deployment backend-base=localhost:8082/backend-base:${env.BRANCH_NAME}-${env.BUILD_NUMBER}"
+                    '''
                 }
             }
         }
