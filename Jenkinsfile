@@ -81,5 +81,20 @@ pipeline {
                 
             }
         }
+
+        stage('Update Kubernetes Deployment') {
+            agent {
+                docker {
+                    image 'bitnami/kubectl:latest'  // Imagen Docker con kubectl preinstalado
+                    reuseNode true
+                }
+            }
+            steps {
+                script {
+                    def imageTag = "${env.BRANCH_NAME}-${env.BUILD_NUMBER}"
+                    sh "kubectl set image deployment/backend-base-deployment backend-base=localhost:8082/backend-base:${imageTag}"
+                }
+            }
+        }
     }
 }
