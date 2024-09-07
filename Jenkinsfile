@@ -38,7 +38,7 @@ pipeline {
                         }
                     }
                     steps{
-                        witSonarQubeEnv('sonarqube'){
+                        withSonarQubeEnv('sonarqube'){
                             sh 'sonar-scanner'
                         }
                     }
