@@ -32,7 +32,7 @@ pipeline {
                 stage('SonarQube analysis'){
                     agent{
                         docker{
-                            image 'sonarsource/sonar-scanner-cli'
+                            image 'sonarsource/sonar-scanner-cli'                                   
                             args '--network="devops-infra_default"'
                             reuseNode true
                         }
