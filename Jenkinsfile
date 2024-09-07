@@ -81,37 +81,5 @@ pipeline {
                 
             }
         }
-
-        stage('Install and Configure kubectl') {
-            steps {
-                script {
-                    // Descargar e instalar kubectl
-                    sh '''
-                    curl -LO "https://dl.k8s.io/release/v1.27.0/bin/linux/amd64/kubectl"
-                    chmod +x ./kubectl
-                    sudo mv ./kubectl /usr/local/bin/kubectl
-                    '''
-                    
-                    // Verificar la instalación
-                    sh 'kubectl version --client'
-                    
-                    // Configurar kubectl
-                    // Asegúrate de proporcionar el archivo kubeconfig correcto o variables de entorno
-                    sh '''
-                    mkdir -p ~/.kube
-                    echo "$KUBECONFIG_CONTENT" > $KUBECONFIG
-                    '''
-                }
-            }
-        }
-
-        stage('Update Kubernetes Deployment') {
-            steps {
-                script {
-                    def imageTag = "${env.BRANCH_NAME}-${env.BUILD_NUMBER}"
-                    sh "kubectl set image deployment/backend-base-deployment backend-base=localhost:8082/backend-base:${imageTag}"
-                }
-            }
-        }
     }
 }
