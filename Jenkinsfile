@@ -81,6 +81,16 @@ pipeline {
             }
         }
 
+        stage('Install kubectl') {
+            steps {
+                sh '''
+                curl -LO "https://dl.k8s.io/release/v1.21.0/bin/linux/amd64/kubectl"
+                chmod +x ./kubectl
+                mv ./kubectl /usr/local/bin/kubectl
+                '''
+            }
+        }
+
         stage('Setup Kubernetes Config') {
             steps {
                 script {
