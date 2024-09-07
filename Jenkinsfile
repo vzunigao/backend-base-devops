@@ -78,7 +78,16 @@ pipeline {
                         sh "docker compose up --force-recreate --build -d"
                     }
                 }
-                
+            }
+        }
+
+        
+        stage('Update Kubernetes Deployment'){
+            steps {
+                script {
+                    def imageVersion = "${env.BRANCH_NAME}-${env.BUILD_NUMBER}"
+                    sh "kubectl set image deployment backend-base-deployment backend-base=localhost:8082/backend-base:${imageVersion}"
+                }
             }
         }
     }
