@@ -31,6 +31,16 @@ describe("Test Suite App", () => {
                 expect(response.text).toBe(`Hola, esta api fue configurada por el usuario ${configuration.username}`);
             })
     });
+
+    test("test de key /", async () => {
+        return await request(app)
+            .get("/key")
+            .expect("Content-Type", /text/)
+            .expect(200)
+            .then((response) => {
+                expect(response.text).toBe(`Hola, esta api contiene la siguiente api-key: ${configuration.apiKey}`);
+            })
+    });
     
 
     test("test de endpoint /palindromo/:frase", async () => {
