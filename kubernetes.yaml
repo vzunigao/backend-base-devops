@@ -16,6 +16,58 @@ spec:
     spec:
       containers:
       - name: backend-base
-        image: localhost:8082/backend-base:latest
+        image: localhost:8082/backend-base
+        imagePullPolicy: Always
+        env:
+        - name: USERNAME
+          valueFrom:
+            configMapKeyRef:
+              name: backend-base
+              key: USERNAME              
+        - name: CREDENCIALES_BD
+          valueFrom:
+            configMapKeyRef:
+              name: backend-base
+              key: PASSWORD_BD          
+          
         ports:
           - containerPort: 3001
+      imagePullSecrets:
+        - name: regcred
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend-base-svc
+  namespace: devops
+  labels:
+    app: backend-base
+spec:
+  selector:
+    app: backend-base
+  ports:
+    - protocol: TCP
+      ports: 80
+      targetPort: 3001
+
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: backend-base-ingress
+  namespace: devops
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: $2
+  spec:
+    ingressClassName: nginx
+    rules:
+      - http:
+        paths:
+          - path: /backend-path(/|$)(.*)
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: backend-base-svc
+                port:
+                  number: 80
