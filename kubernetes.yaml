@@ -6,11 +6,11 @@ metadata:
     app: backend-base
 spec:
   replicas: 3
-  selector: 
+  selector:
     matchLabels:
       app: backend-base
   template:
-    metadata: 
+    metadata:
       labels:
         app: backend-base
     spec:
@@ -26,14 +26,15 @@ spec:
               key: USERNAME              
         - name: CREDENCIALES_BD
           valueFrom:
-            configMapKeyRef:
+            secretKeyRef:
               name: backend-base
               key: PASSWORD_BD          
-          
+         
         ports:
           - containerPort: 3001
       imagePullSecrets:
         - name: regcred
+
 
 ---
 apiVersion: v1
@@ -48,9 +49,8 @@ spec:
     app: backend-base
   ports:
     - protocol: TCP
-      ports: 80
+      port: 80
       targetPort: 3001
-
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
@@ -58,16 +58,17 @@ metadata:
   name: backend-base-ingress
   namespace: devops
   annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: $2
-  spec:
-    ingressClassName: nginx
-    rules:
-      - http:
-        paths:
-          - path: /backend-path(/|$)(.*)
-            pathType: ImplementationSpecific
-            backend:
-              service:
-                name: backend-base-svc
-                port:
-                  number: 80
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+spec:
+  ingressClassName: nginx
+  rules:
+  - http:
+      paths:
+      - path: /backend-path(/|$)(.*)
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: backend-base-svc
+            port:
+              number: 80
+
