@@ -97,7 +97,7 @@ pipeline {
             steps {
                 withCredentials([file(credentialsId: 'kubernetes-key', variable: 'KUBECONFIG')]) {
                     // Se usa el archivo kubeconfig para la autenticación
-                    sh 'kubectl config use-context my-context'
+                    sh 'kubectl config use-context docker-desktop'
                 }
             }
         }
