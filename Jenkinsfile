@@ -81,6 +81,21 @@ pipeline {
             }
         }
 
+        stage('Setup Kubernetes Config') {
+            steps {
+                script {
+                    withCredentials([file(credentialsId: 'kubeconfig-secret', variable: 'KUBECONFIG_FILE')]) {
+                        sh 'export KUBECONFIG=${KUBECONFIG_FILE}'
+                    }
+                }
+            }
+        }
+
+        stage('Check Kubernetes Connection') {
+            steps {
+                sh 'kubectl cluster-info'
+            }
+        }
         
         stage('Update Kubernetes Deployment'){
             steps {
