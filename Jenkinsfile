@@ -78,41 +78,7 @@ pipeline {
                         sh "docker compose up --force-recreate --build -d"
                     }
                 }
-            }
-        }
-
-        stage('Install kubectl') {
-            steps {
-                sh '''
-                curl -LO "https://dl.k8s.io/release/v1.21.0/bin/linux/amd64/kubectl"
-                chmod +x ./kubectl
-                mv ./kubectl /usr/local/bin/kubectl
-                '''
-            }
-        }
-
-        stage('Setup Kubernetes Config') {
-            steps {
-                script {
-                    withCredentials([file(credentialsId: 'kubeconfig-secret', variable: 'KUBECONFIG_FILE')]) {
-                        sh 'export KUBECONFIG=${KUBECONFIG_FILE}'
-                    }
-                }
-            }
-        }
-
-        stage('Check Kubernetes Connection') {
-            steps {
-                sh 'kubectl cluster-info'
-            }
-        }
-        
-        stage('Update Kubernetes Deployment'){
-            steps {
-                script {
-                    def imageVersion = "${env.BRANCH_NAME}-${env.BUILD_NUMBER}"
-                    sh "kubectl set image deployment backend-base-deployment backend-base=localhost:8082/backend-base:${imageVersion}"
-                }
+                
             }
         }
     }
