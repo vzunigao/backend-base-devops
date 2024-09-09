@@ -82,8 +82,13 @@ pipeline {
         stage('Kubernetes Deployment') {
             steps {
                 script {
-                    // Definir imageName dentro del script
-                    def imageName = "localhost:8082/backend-base-${env.BRANCH_NAME}-${env.BUILD_NUMBER}".replace(':', '-')
+                    // Sanitizar branch name y crear imageName
+                    def sanitizedBranchName = env.BRANCH_NAME.replaceAll('[^a-zA-Z0-9-]', '-')
+                    def imageName = "localhost:8082/backend-base-${sanitizedBranchName}-${env.BUILD_NUMBER}".replace(':', '-')
+
+                    // Imprimir el nombre de la imagen para depuración
+                    echo "Deploying image: ${imageName}"
+
                     withKubeConfig([credentialsId: 'kubeconfig-id']) {
                         sh "kubectl set image deployment backend-base-deployment backend-base=${imageName}"
                     }
