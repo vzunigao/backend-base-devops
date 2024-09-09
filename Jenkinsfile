@@ -82,17 +82,14 @@ pipeline {
             }
         }
 
-         stage('Kubernetes Deployment') {
+        stage('Kubernetes Deployment') {
             steps {
                 script {
                     withKubeConfig([credentialsId: 'kubeconfig-id']) {
-                         def imageName = "localhost:8082/backend-base:${env.BRANCH_NAME}-${env.BUILD_NUMBER}"
-                        sh "kubectl set image deployment backend-base-deployment backend-base=${imageName}"
+                        sh "kubectl set image deployment backend-base-deployment backend-base=localhost:8082/backend-base:${env.BRANCH_NAME}-${env.BUILD_NUMBER}"
                     }
                 }
             }
-        }    
-
-        
+        }
     }
 }
