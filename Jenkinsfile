@@ -1,8 +1,5 @@
 pipeline {
     agent any
-    environment {
-        imageName = "localhost:8082/backend-base:${env.BRANCH_NAME}-${env.BUILD_NUMBER}".replaceAll(':', '-')
-    }
     stages {
         stage('Build and test') {
             agent {
@@ -12,82 +9,81 @@ pipeline {
                 }
             }
             stages {
-               stage('Instalar dependencias') {
-                   steps {
-                       sh 'npm install'
-                   }
-               } 
+                stage('Instalar dependencias') {
+                    steps {
+                        sh 'npm install'
+                    }
+                }
                 stage('ejecucion de test') {
-                   steps {
-                       sh 'npm run test'
-                   }
-               } 
+                    steps {
+                        sh 'npm run test'
+                    }
+                }
                 stage('ejecucion de build') {
-                   steps {
-                       sh 'npm run build'
-                   }
-               } 
+                    steps {
+                        sh 'npm run build'
+                    }
+                }
             }
         }
-        
-        stage('Code Quality'){
-            stages{
-                stage('SonarQube analysis'){
-                    agent{
-                        docker{
-                            image 'sonarsource/sonar-scanner-cli'                                   
+
+        stage('Code Quality') {
+            stages {
+                stage('SonarQube analysis') {
+                    agent {
+                        docker {
+                            image 'sonarsource/sonar-scanner-cli'
                             args '--network="devops-infra_default"'
                             reuseNode true
                         }
                     }
-                    steps{
-                        withSonarQubeEnv('sonarqube'){
+                    steps {
+                        withSonarQubeEnv('sonarqube') {
                             sh 'sonar-scanner'
                         }
                     }
                 }
 
-                stage('Quality Gate'){
-                    steps{
-                        timeout(time: 10, unit: 'SECONDS'){
+                stage('Quality Gate') {
+                    steps {
+                        timeout(time: 10, unit: 'SECONDS') {
                             waitForQualityGate abortPipeline: true
                         }
                     }
                 }
             }
-            
         }
 
-        stage('delivery'){
+        stage('delivery') {
             steps {
-                script{
-                    docker.withRegistry('http://localhost:8082', 'nexus-key'){
+                script {
+                    docker.withRegistry('http://localhost:8082', 'nexus-key') {
                         sh 'docker build -t backend-base:latest .'
                         sh "docker tag backend-base:latest localhost:8082/backend-base:latest"
-                        sh "docker tag backend-base:latest localhost:8082/backend-base:${env.BRANCH_NAME}-${env.BUILD_NUMBER}"
+                        sh "docker tag backend-base:latest localhost:8082/backend-base-${env.BRANCH_NAME}-${env.BUILD_NUMBER}"
                         sh 'docker push localhost:8082/backend-base:latest'
-                        sh "docker push localhost:8082/backend-base:${env.BRANCH_NAME}-${env.BUILD_NUMBER}"
+                        sh "docker push localhost:8082/backend-base-${env.BRANCH_NAME}-${env.BUILD_NUMBER}"
                     }
                 }
-                
             }
         }
 
-        stage('deploy'){
+        stage('deploy') {
             steps {
-                script{
-                    docker.withRegistry('http://localhost:8082', 'nexus-key'){
+                script {
+                    docker.withRegistry('http://localhost:8082', 'nexus-key') {
                         sh "docker compose pull"
                         sh "docker compose up --force-recreate --build -d"
                     }
                 }
-                
             }
         }
 
-       stage('Kubernetes Deployment') {
+        stage('Kubernetes Deployment') {
             steps {
                 script {
+                    // Definir imageName dentro del script
+                    def imageName = "localhost:8082/backend-base-${env.BRANCH_NAME}-${env.BUILD_NUMBER}".replace(':', '-')
                     withKubeConfig([credentialsId: 'kubeconfig-id']) {
                         sh "kubectl set image deployment backend-base-deployment backend-base=${imageName}"
                     }
