@@ -1,5 +1,8 @@
 pipeline {
     agent any
+    environment {
+        imageName = "localhost:8082/backend-base:${env.BRANCH_NAME}-${env.BUILD_NUMBER}".replaceAll(':', '-')
+    }
     stages {
         stage('Build and test') {
             agent {
@@ -82,11 +85,11 @@ pipeline {
             }
         }
 
-        stage('Kubernetes Deployment') {
+       stage('Kubernetes Deployment') {
             steps {
                 script {
                     withKubeConfig([credentialsId: 'kubeconfig-id']) {
-                        sh "kubectl set image deployment backend-base-deployment backend-base=localhost:8082/backend-base:${env.BRANCH_NAME}-${env.BUILD_NUMBER}"
+                        sh "kubectl set image deployment backend-base-deployment backend-base=${imageName}"
                     }
                 }
             }
