@@ -83,7 +83,6 @@ pipeline {
             steps {
                 script {
                     def imageName = "localhost:8082/backend-base-${env.BRANCH_NAME}-${env.BUILD_NUMBER}"
-                    
                     echo "Deploying image: ${imageName}"
 
                     withKubeConfig([credentialsId: 'kubeconfig-id']) {
