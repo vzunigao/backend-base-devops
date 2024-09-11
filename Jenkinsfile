@@ -82,11 +82,8 @@ pipeline {
        stage('Kubernetes Deployment') {
             steps {
                 script {
-                    // Sanitizar solo el branch name y el build number
-                    def sanitizedBranchName = env.BRANCH_NAME.replaceAll('[^a-zA-Z0-9-]', '-')
-                    def imageName = "localhost:8082/backend-base-${sanitizedBranchName}-${env.BUILD_NUMBER}"
-
-                    // Imprimir el nombre de la imagen para depuración
+                    def imageName = "localhost:8082/backend-base-${env.BRANCH_NAME}-${env.BUILD_NUMBER}"
+                    
                     echo "Deploying image: ${imageName}"
 
                     withKubeConfig([credentialsId: 'kubeconfig-id']) {
